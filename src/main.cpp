@@ -13,7 +13,7 @@ constexpr unsigned TILE_HEIGHT = WINDOW_HEIGHT / LEVEL_HEIGHT;
 
 float cameraX = 100, cameraY = 100;
 float cameraAngle = 300.0;
-float cameraFOV = 45.0;
+float cameraFOV = 60.0;
 float dod = 800.0;
 
 uint8_t level[LEVEL_WIDTH * LEVEL_HEIGHT] = {
@@ -134,7 +134,13 @@ float CalculateDistance(int sx, int sy, float angle, float* normalAngle = nullpt
 	float dy = y - sy;
 	float dx = x - sx;
 
-	return sqrt(dx * dx + dy * dy);
+	float dist = sqrt(dx * dx + dy * dy);
+
+	float cameraRadian = cameraAngle / 180.0 * 3.14;
+	float diffRadian = cameraRadian - angle;
+	dist *= cos(diffRadian);
+
+	return dist;
 }
 
 float DotProduct(float angleA, float angleB)
@@ -208,7 +214,11 @@ void DrawRays()
 		SDL_RenderDrawLine(renderer, cameraX, cameraY, cameraX + raydx * length, cameraY + raydy * length);
 
 		//float height = 1.0 / length * WINDOW_HEIGHT;
-		float height = WINDOW_HEIGHT - (length / dod * WINDOW_HEIGHT);
+		//float height = WINDOW_HEIGHT - (length / dod * WINDOW_HEIGHT);
+		float height = WINDOW_HEIGHT / 3 / length * (WINDOW_WIDTH / 2 / tan(cameraFOV / 2.0 * 3.14 / 180.0));
+		if(height > WINDOW_HEIGHT)
+			height = WINDOW_HEIGHT;
+		//printf("Height: %f\n", height);
 		float halfHeight = height / 2.0;
 
 		//printf("Len: %f\n", length);
